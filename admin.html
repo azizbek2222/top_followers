@@ -6,17 +6,71 @@
     <title>TOP FOLLOWERS - ADMIN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --success: #22c55e; --danger: #ef4444; --accent: #3b82f6; }
-        body { font-family: sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; user-select: none; }
-        h2, h3 { color: var(--accent); border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        .order-item { background: var(--card); margin: 12px 0; padding: 15px; border-radius: 12px; border-left: 5px solid var(--accent); }
+        :root { 
+            --bg: #0f172a; 
+            --card: #1e293b; 
+            --success: #22c55e; 
+            --danger: #ef4444; 
+            --accent: #3b82f6; 
+            --text-dim: #94a3b8;
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: white; 
+            padding: 15px; 
+            margin: 0; 
+            user-select: none; 
+        }
+        h2, h3 { color: var(--accent); border-bottom: 1px solid #334155; padding-bottom: 10px; margin-top: 25px; }
+        
+        .order-item { 
+            background: var(--card); 
+            margin: 12px 0; 
+            padding: 15px; 
+            border-radius: 12px; 
+            border-left: 5px solid var(--accent); 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .order-info p { margin: 5px 0; font-size: 0.95rem; }
         .user { color: #fbbf24; font-weight: bold; }
         .insta { color: #22c55e; font-weight: bold; }
+        .amount-badge { 
+            background: rgba(59, 130, 246, 0.2); 
+            color: var(--accent); 
+            padding: 2px 8px; 
+            border-radius: 6px; 
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .time { color: var(--text-dim); font-size: 0.75rem; display: block; margin-top: 5px; }
+
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        button { 
+            flex: 1; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            color: white; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: opacity 0.2s;
+        }
+        button:active { opacity: 0.7; }
         .confirm-btn { background: var(--success); }
         .reject-btn { background: var(--danger); }
-        .history-item { background: rgba(255,255,255,0.05); margin: 8px 0; padding: 10px; border-radius: 8px; font-size: 0.85rem; }
+        
+        .history-item { 
+            background: rgba(255,255,255,0.05); 
+            margin: 8px 0; 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-size: 0.85rem; 
+            display: flex;
+            justify-content: space-between;
+        }
+        .status-done { color: var(--success); }
+        .status-rejected { color: var(--danger); }
     </style>
 </head>
 <body>
@@ -34,10 +88,12 @@
         let history = [];
 
         function loadAllData() {
+            // Yangi buyurtmalarni yuklash
             tg.CloudStorage.getItem('all_orders', (err, value) => {
                 orders = value ? JSON.parse(value) : [];
                 renderOrders();
             });
+            // Tarixni yuklash
             tg.CloudStorage.getItem('order_history', (err, value) => {
                 history = value ? JSON.parse(value) : [];
                 renderHistory();
@@ -46,10 +102,20 @@
 
         function renderOrders() {
             const container = document.getElementById('admin-orders');
-            if (orders.length === 0) { container.innerHTML = "<p>Yangi buyurtmalar yo'q.</p>"; return; }
+            if (orders.length === 0) { 
+                container.innerHTML = "<p style='color: #94a3b8; text-align: center;'>Hozircha yangi buyurtmalar yo'q.</p>"; 
+                return; 
+            }
+
             container.innerHTML = orders.map((o, index) => `
                 <div class="order-item">
-                    <p>👤 @${o.user} -> <span class="insta">@${o.insta}</span></p>
+                    <div class="order-info">
+                        <p>👤 Foydalanuvchi: <span class="user">@${o.user}</span></p>
+                        <p>📸 Instagram: <span class="insta">@${o.insta}</span></p>
+                        <p>📊 Miqdori: <span class="amount-badge">${o.amount || 100} obunachi</span></p>
+                        <p>🪙 Narxi: <b>${o.price || 800} tanga</b></p>
+                        <span class="time">⏰ ${o.time}</span>
+                    </div>
                     <div class="btn-group">
                         <button class="confirm-btn" onclick="processOrder(${index}, 'confirm')">✅ Tasdiqlash</button>
                         <button class="reject-btn" onclick="processOrder(${index}, 'reject')">❌ Rad etish</button>
@@ -60,32 +126,47 @@
 
         function renderHistory() {
             const container = document.getElementById('admin-history');
+            if (history.length === 0) { container.innerHTML = "Tarix bo'sh."; return; }
+            
             container.innerHTML = history.slice(-10).reverse().map(h => `
-                <div class="history-item">@${h.user} -> @${h.insta} | <b>${h.status === 'done' ? '✅' : '❌'}</b></div>
+                <div class="history-item">
+                    <span>@${h.user} -> ${h.amount || 100} ta</span>
+                    <b class="${h.status === 'done' ? 'status-done' : 'status-rejected'}">
+                        ${h.status === 'done' ? '✅ Bajarildi' : '❌ Rad etildi'}
+                    </b>
+                </div>
             `).join('');
         }
 
         function processOrder(index, action) {
             const order = orders[index];
+            
             if (action === 'confirm') {
+                // Tasdiqlanganda tarixga "bajarildi" deb yozish
                 history.push({...order, status: 'done'});
                 tg.CloudStorage.setItem('order_history', JSON.stringify(history));
             } else {
+                // Rad etilganda foydalanuvchi qaytib kirganida tangasini qaytarish uchun ro'yxatga qo'shish
                 tg.CloudStorage.getItem('rejected_orders', (err, value) => {
                     let rejected = value ? JSON.parse(value) : [];
-                    rejected.push(order);
+                    rejected.push(order); // Endi ob'ektda 'price' bor, foydalanuvchi to'g'ri summani qaytarib oladi
                     tg.CloudStorage.setItem('rejected_orders', JSON.stringify(rejected));
                 });
                 history.push({...order, status: 'rejected'});
                 tg.CloudStorage.setItem('order_history', JSON.stringify(history));
             }
+
+            // Ro'yxatdan o'chirish va saqlash
             orders.splice(index, 1);
             tg.CloudStorage.setItem('all_orders', JSON.stringify(orders), () => {
                 loadAllData();
                 tg.HapticFeedback.notificationOccurred('success');
             });
         }
+
+        // Sahifa yuklanganda ma'lumotlarni olish
         loadAllData();
+        // Har 10 soniyada yangilab turish
         setInterval(loadAllData, 10000);
     </script>
 </body>

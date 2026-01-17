@@ -3,14 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BUYURTMA BERISH</title>
+    <title>TARIF TANLASH</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        .tariff-grid { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+        .tariff-card {
+            background: var(--bg-color);
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .tariff-card.selected { border-color: var(--accent-color); background: rgba(56, 189, 248, 0.05); }
+        .tariff-info h4 { margin: 0; color: var(--text-main); }
+        .tariff-info p { margin: 4px 0 0; color: var(--text-dim); font-size: 0.85rem; }
+        .price { font-weight: bold; color: var(--accent-color); }
+    </style>
 </head>
 <body>
     <div class="app-container">
         <header>
-            <div class="logo">BUYURTMA</div>
+            <div class="logo">TARIFLAR</div>
             <div class="balance-card">
                 <span id="coin-count">0</span>
                 <img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" width="20" alt="coin">
@@ -19,12 +37,37 @@
 
         <main class="main-content">
             <div class="card">
-                <h3>Obunachi sotib olish</h3>
-                <p class="price-tag">100 tanga = 10 ta obunachi</p>
+                <h3>Obunachi paketini tanlang</h3>
                 
+                <div class="tariff-grid" id="tariff-list">
+                    <div class="tariff-card" onclick="selectTariff(this, 100, 800)">
+                        <div class="tariff-info">
+                            <h4>100 ta obunachi</h4>
+                            <p>Tezkor yetkazib berish</p>
+                        </div>
+                        <div class="price">800 🪙</div>
+                    </div>
+
+                    <div class="tariff-card" onclick="selectTariff(this, 200, 1600)">
+                        <div class="tariff-info">
+                            <h4>200 ta obunachi</h4>
+                            <p>Eng ommabop paket</p>
+                        </div>
+                        <div class="price">1600 🪙</div>
+                    </div>
+
+                    <div class="tariff-card" onclick="selectTariff(this, 400, 3200)">
+                        <div class="tariff-info">
+                            <h4>400 ta obunachi</h4>
+                            <p>Katta hajmda tejash</p>
+                        </div>
+                        <div class="price">3200 🪙</div>
+                    </div>
+                </div>
+
                 <div class="input-group">
                     <span class="at-symbol">@</span>
-                    <input type="text" id="insta-username" placeholder="username" autocomplete="off">
+                    <input type="text" id="insta-username" placeholder="Instagram username" autocomplete="off">
                 </div>
                 
                 <button class="order-btn" onclick="placeOrder()">
