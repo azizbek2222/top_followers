@@ -76,7 +76,7 @@ async function showAd() {
     if (!btn) return;
     btn.disabled = true;
     AdController.show().then(() => {
-        coins += 10;
+        coins += 4;
         saveBalance();
         tg.HapticFeedback.notificationOccurred('success');
     }).catch(() => {
