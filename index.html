@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Coin & Followers</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <h2>Tanga yig'ish tizimi</h2>
+        
+        <div class="balance-card">
+            <p>Sizning balansingiz: <span id="coin-count">0</span> 🪙</p>
+        </div>
+
+        <div class="action-section">
+            <button onclick="watchAd()" id="ad-btn">Reklama ko'rish (+10 tanga)</button>
+        </div>
+
+        <hr>
+
+        <div class="order-section">
+            <h3>Obunachi sotib olish</h3>
+            <input type="text" id="insta-username" placeholder="Instagram foydalanuvchi nomi">
+            <button onclick="placeOrder()">100 tangaga 10 ta obunachi</button>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <h3>Admin Panel (Buyurtmalar)</h3>
+        <ul id="order-list"></ul>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
