@@ -5,31 +5,30 @@ let coins = 0;
 tg.expand();
 tg.ready();
 
-// Yuklash
+// Balansni yuklash
 document.addEventListener('DOMContentLoaded', () => {
     tg.CloudStorage.getItem('user_balance', (err, value) => {
         if (value) {
             coins = parseInt(value);
             document.getElementById('coin-count').innerText = coins;
+            checkRefunds(); 
         }
     });
 });
 
 async function showAd() {
     const btn = document.getElementById('ad-btn');
-    btn.style.opacity = "0.7";
     btn.disabled = true;
-
+    
     AdController.show().then(() => {
         coins += 10;
         saveBalance();
         tg.HapticFeedback.notificationOccurred('success');
-        alert("Tabriklaymiz! +10 tanga");
+        alert("Tabriklaymiz! +10 tanga qo'shildi.");
     }).catch(() => {
         tg.HapticFeedback.notificationOccurred('error');
         alert("Reklama to'liq ko'rilmadi.");
     }).finally(() => {
-        btn.style.opacity = "1";
         btn.disabled = false;
     });
 }
@@ -41,22 +40,18 @@ function saveBalance() {
 
 function placeOrder() {
     const username = document.getElementById('insta-username').value;
-    if (!username) {
-        tg.HapticFeedback.selectionChanged();
-        return alert("Username kiriting!");
-    }
+    if (!username) return alert("Instagram foydalanuvchi nomini yozing!");
 
     if (coins >= 100) {
         coins -= 100;
         saveBalance();
-
+        
         const order = {
             user: tg.initDataUnsafe.user?.username || "Noma'lum",
             insta: username,
-            date: new Date().toISOString()
+            time: new Date().toLocaleTimeString()
         };
 
-        // Buyurtmani "Admin" ko'rishi uchun saqlash
         tg.CloudStorage.getItem('all_orders', (err, value) => {
             let orders = value ? JSON.parse(value) : [];
             orders.push(order);
@@ -69,4 +64,23 @@ function placeOrder() {
     } else {
         alert("Tangalar yetarli emas!");
     }
+}
+
+function checkRefunds() {
+    tg.CloudStorage.getItem('rejected_orders', (err, value) => {
+        if (value) {
+            let rejected = JSON.parse(value);
+            const currentUser = tg.initDataUnsafe.user?.username;
+            const userRefunds = rejected.filter(o => o.user === currentUser);
+            
+            if (userRefunds.length > 0) {
+                let refundTotal = userRefunds.length * 100;
+                coins += refundTotal;
+                saveBalance();
+                const others = rejected.filter(o => o.user !== currentUser);
+                tg.CloudStorage.setItem('rejected_orders', JSON.stringify(others));
+                alert(`Sizning buyurtmangiz rad etildi. ${refundTotal} tanga qaytarildi!`);
+            }
+        }
+    });
 }

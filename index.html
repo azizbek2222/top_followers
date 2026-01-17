@@ -9,36 +9,34 @@
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>
 <body>
-    <div class="app-wrapper">
-        <div class="top-bar">
+    <div class="app-container">
+        <header>
             <div class="logo">TOP FOLLOWERS</div>
-            <div class="balance-badge">
-                <img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" alt="coin">
+            <div class="balance-card">
                 <span id="coin-count">0</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" width="20" alt="coin">
             </div>
-        </div>
-
-        <main class="content">
-            <div class="card ad-card">
-                <div class="card-info">
-                    <h3>Bepul tangalar yig'ing</h3>
-                    <p>Reklamani oxirigacha ko'ring va hisobingizni to'ldiring</p>
-                </div>
-                <button onclick="showAd()" id="ad-btn" class="main-btn">
-                    <span class="icon">🎬</span> Reklama ko'rish (+10)
+        </header>
+        
+        <main class="main-content">
+            <div class="card">
+                <h3>Bepul tangalar yig'ing</h3>
+                <p class="hint">Reklamani oxirigacha ko'ring va hisobingizni to'ldiring</p>
+                <button onclick="showAd()" id="ad-btn">
+                    <span class="btn-icon">🎬</span> Reklama ko'rish (+10)
                 </button>
             </div>
 
-            <div class="card order-card">
+            <div class="card">
                 <h3>Obunachi sotib olish</h3>
-                <p class="price-tag">100 tanga = 10 obunachi</p>
+                <p class="price-tag">100 tanga = 10 ta obunachi</p>
                 
-                <div class="input-wrapper">
-                    <span class="prefix">@</span>
-                    <input type="text" id="insta-username" placeholder="Instagram foydalanuvchi nomi">
+                <div class="input-group">
+                    <span class="at-symbol">@</span>
+                    <input type="text" id="insta-username" placeholder="username" autocomplete="off">
                 </div>
                 
-                <button class="buy-btn" onclick="placeOrder()">
+                <button class="order-btn" onclick="placeOrder()">
                     Buyurtma berish
                 </button>
             </div>

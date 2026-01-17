@@ -6,79 +6,25 @@
     <title>TOP FOLLOWERS - ADMIN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --accent: #3b82f6;
-        }
-
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: var(--bg); 
-            color: white; 
-            margin: 0; 
-            padding: 15px;
-            user-select: none; /* Qo'l tekkanda matn tanlanib ketmasligi uchun */
-        }
-
+        :root { --bg: #0f172a; --card: #1e293b; --success: #22c55e; --danger: #ef4444; --accent: #3b82f6; }
+        body { font-family: sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; user-select: none; }
         h2, h3 { color: var(--accent); border-bottom: 1px solid #334155; padding-bottom: 10px; }
-
-        .order-item { 
-            background: var(--card); 
-            margin: 12px 0; 
-            padding: 15px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            border-left: 5px solid var(--accent);
-        }
-
+        .order-item { background: var(--card); margin: 12px 0; padding: 15px; border-radius: 12px; border-left: 5px solid var(--accent); }
         .user { color: #fbbf24; font-weight: bold; }
         .insta { color: #22c55e; font-weight: bold; }
-
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
         .confirm-btn { background: var(--success); }
         .reject-btn { background: var(--danger); }
-        button:active { opacity: 0.6; }
-
-        .history-item {
-            background: rgba(255,255,255,0.05);
-            margin: 8px 0;
-            padding: 10px;
-            font-size: 0.85rem;
-            border-radius: 8px;
-            border-left: 3px solid #64748b;
-        }
-
-        .status-done { color: var(--success); font-weight: bold; }
-
-        #admin-orders, #admin-history { margin-bottom: 30px; }
+        .history-item { background: rgba(255,255,255,0.05); margin: 8px 0; padding: 10px; border-radius: 8px; font-size: 0.85rem; }
     </style>
 </head>
 <body>
+    <h2>📥 Yangi Buyurtmalar</h2>
+    <div id="admin-orders">Yuklanmoqda...</div>
 
-    <section>
-        <h2>📥 Yangi Buyurtmalar</h2>
-        <div id="admin-orders">Yuklanmoqda...</div>
-    </section>
-
-    <section>
-        <h3>📜 Yakunlanganlar (Tarix)</h3>
-        <div id="admin-history">Tarix bo'sh.</div>
-    </section>
+    <h3>📜 Oxirgi 10 ta Tarix</h3>
+    <div id="admin-history">Tarix bo'sh.</div>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -87,34 +33,23 @@
         let orders = [];
         let history = [];
 
-        // Ma'lumotlarni yuklash
         function loadAllData() {
-            // Buyurtmalarni yuklash
             tg.CloudStorage.getItem('all_orders', (err, value) => {
                 orders = value ? JSON.parse(value) : [];
                 renderOrders();
             });
-
-            // Tarixni yuklash
             tg.CloudStorage.getItem('order_history', (err, value) => {
                 history = value ? JSON.parse(value) : [];
                 renderHistory();
             });
         }
 
-        // Buyurtmalarni ekranga chiqarish
         function renderOrders() {
             const container = document.getElementById('admin-orders');
-            if (orders.length === 0) {
-                container.innerHTML = "<p>Yangi buyurtmalar yo'q.</p>";
-                return;
-            }
-
+            if (orders.length === 0) { container.innerHTML = "<p>Yangi buyurtmalar yo'q.</p>"; return; }
             container.innerHTML = orders.map((o, index) => `
                 <div class="order-item">
-                    <p>👤 Kimdan: <span class="user">@${o.user}</span></p>
-                    <p>📸 Insta: <span class="insta">@${o.insta}</span></p>
-                    <small>⏰ ${o.time || 'Vaqt qayd etilmagan'}</small>
+                    <p>👤 @${o.user} -> <span class="insta">@${o.insta}</span></p>
                     <div class="btn-group">
                         <button class="confirm-btn" onclick="processOrder(${index}, 'confirm')">✅ Tasdiqlash</button>
                         <button class="reject-btn" onclick="processOrder(${index}, 'reject')">❌ Rad etish</button>
@@ -123,47 +58,34 @@
             `).join('');
         }
 
-        // Tarixni ekranga chiqarish
         function renderHistory() {
             const container = document.getElementById('admin-history');
-            if (history.length === 0) return;
-
             container.innerHTML = history.slice(-10).reverse().map(h => `
-                <div class="history-item">
-                    @${h.user} -> @${h.insta} <br>
-                    <span class="status-done">✅ Bajarildi</span> | <small>${h.time}</small>
-                </div>
+                <div class="history-item">@${h.user} -> @${h.insta} | <b>${h.status === 'done' ? '✅' : '❌'}</b></div>
             `).join('');
         }
 
-        // Buyurtmani qayta ishlash
-        async function processOrder(index, action) {
+        function processOrder(index, action) {
             const order = orders[index];
-            
             if (action === 'confirm') {
-                // Tasdiqlansa: Tarixga qo'shish
                 history.push({...order, status: 'done'});
                 tg.CloudStorage.setItem('order_history', JSON.stringify(history));
-                alert("Buyurtma tasdiqlandi!");
-            } 
-            else if (action === 'reject') {
-                // Rad etilsa: Foydalanuvchiga tangasini qaytarish (murakkabroq mantiq)
-                // CloudStorage individual foydalanuvchi balansini admin orqali o'zgartira olmaydi.
-                // Shuning uchun bu yerda shunchaki bekor qilinganini qayd etamiz.
-                alert("Buyurtma rad etildi! (Tangani qaytarish uchun foydalanuvchi balansini qo'lda o'zgartirish kerak yoki maxsus qaytarish tizimi orqali ishlaydi)");
+            } else {
+                tg.CloudStorage.getItem('rejected_orders', (err, value) => {
+                    let rejected = value ? JSON.parse(value) : [];
+                    rejected.push(order);
+                    tg.CloudStorage.setItem('rejected_orders', JSON.stringify(rejected));
+                });
+                history.push({...order, status: 'rejected'});
+                tg.CloudStorage.setItem('order_history', JSON.stringify(history));
             }
-
-            // Har ikkala holda asosiy ro'yxatdan o'chirish
             orders.splice(index, 1);
             tg.CloudStorage.setItem('all_orders', JSON.stringify(orders), () => {
                 loadAllData();
                 tg.HapticFeedback.notificationOccurred('success');
             });
         }
-
-        // Boshlanishida bir marta yuklash
         loadAllData();
-        // Har 10 soniyada avtomatik yangilash
         setInterval(loadAllData, 10000);
     </script>
 </body>
