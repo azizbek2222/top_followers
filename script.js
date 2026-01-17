@@ -1,42 +1,72 @@
+const tg = window.Telegram.WebApp;
+const AdController = window.Adsgram.init({ blockId: "int-21300" }); 
+
 let coins = 0;
-const coinDisplay = document.getElementById('coin-count');
-const orderList = document.getElementById('order-list');
+tg.expand();
+tg.ready();
 
-// Reklama ko'rish funksiyasi
-function watchAd() {
-    let btn = document.getElementById('ad-btn');
+// Yuklash
+document.addEventListener('DOMContentLoaded', () => {
+    tg.CloudStorage.getItem('user_balance', (err, value) => {
+        if (value) {
+            coins = parseInt(value);
+            document.getElementById('coin-count').innerText = coins;
+        }
+    });
+});
+
+async function showAd() {
+    const btn = document.getElementById('ad-btn');
+    btn.style.opacity = "0.7";
     btn.disabled = true;
-    btn.innerText = "Reklama yuklanmoqda...";
 
-    setTimeout(() => {
+    AdController.show().then(() => {
         coins += 10;
-        coinDisplay.innerText = coins;
+        saveBalance();
+        tg.HapticFeedback.notificationOccurred('success');
+        alert("Tabriklaymiz! +10 tanga");
+    }).catch(() => {
+        tg.HapticFeedback.notificationOccurred('error');
+        alert("Reklama to'liq ko'rilmadi.");
+    }).finally(() => {
+        btn.style.opacity = "1";
         btn.disabled = false;
-        btn.innerText = "Reklama ko'rish (+10 tanga)";
-        alert("Siz 10 tanga yutib oldingiz!");
-    }, 2000); // 2 soniyali reklama simulyatsiyasi
+    });
 }
 
-// Buyurtma berish funksiyasi
+function saveBalance() {
+    document.getElementById('coin-count').innerText = coins;
+    tg.CloudStorage.setItem('user_balance', coins.toString());
+}
+
 function placeOrder() {
-    let username = document.getElementById('insta-username').value;
-    
-    if (username === "") {
-        alert("Iltimos, ismingizni yozing!");
-        return;
+    const username = document.getElementById('insta-username').value;
+    if (!username) {
+        tg.HapticFeedback.selectionChanged();
+        return alert("Username kiriting!");
     }
 
     if (coins >= 100) {
         coins -= 100;
-        coinDisplay.innerText = coins;
+        saveBalance();
 
-        // Admin panelga buyurtma qo'shish
-        let li = document.createElement('li');
-        li.innerText = `Buyurtma: @${username} (10 obunachi)`;
-        orderList.appendChild(li);
+        const order = {
+            user: tg.initDataUnsafe.user?.username || "Noma'lum",
+            insta: username,
+            date: new Date().toISOString()
+        };
 
+        // Buyurtmani "Admin" ko'rishi uchun saqlash
+        tg.CloudStorage.getItem('all_orders', (err, value) => {
+            let orders = value ? JSON.parse(value) : [];
+            orders.push(order);
+            tg.CloudStorage.setItem('all_orders', JSON.stringify(orders));
+        });
+
+        tg.HapticFeedback.notificationOccurred('success');
         alert("Buyurtma qabul qilindi!");
+        document.getElementById('insta-username').value = "";
     } else {
-        alert("Tangalaringiz yetarli emas! Yana reklama ko'ring.");
+        alert("Tangalar yetarli emas!");
     }
 }

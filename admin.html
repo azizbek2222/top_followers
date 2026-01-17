@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>TOP FOLLOWERS - ADMIN</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: white; padding: 20px; }
+        .order-item { background: #333; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db; }
+        .user { color: #f1c40f; font-weight: bold; }
+        .insta { color: #2ecc71; }
+    </style>
+</head>
+<body>
+    <h2>Yangi Buyurtmalar</h2>
+    <div id="admin-orders"></div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        
+        function loadOrders() {
+            tg.CloudStorage.getItem('all_orders', (err, value) => {
+                const container = document.getElementById('admin-orders');
+                if (value) {
+                    const orders = JSON.parse(value);
+                    container.innerHTML = orders.reverse().map(o => `
+                        <div class="order-item">
+                            <p>Kimdan: <span class="user">@${o.user}</span></p>
+                            <p>Instagram: <span class="insta">@${o.insta}</span></p>
+                            <small>${o.time}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = "Hozircha buyurtmalar yo'q.";
+                }
+            });
+        }
+        setInterval(loadOrders, 5000); // Har 5 soniyada yangilash
+        loadOrders();
+    </script>
+</body>
+</html>

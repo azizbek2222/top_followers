@@ -2,33 +2,47 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Coin & Followers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TOP FOLLOWERS</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 </head>
 <body>
-    <div class="app-container">
-        <h2>Tanga yig'ish tizimi</h2>
-        
-        <div class="balance-card">
-            <p>Sizning balansingiz: <span id="coin-count">0</span> 🪙</p>
+    <div class="app-wrapper">
+        <div class="top-bar">
+            <div class="logo">TOP FOLLOWERS</div>
+            <div class="balance-badge">
+                <img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" alt="coin">
+                <span id="coin-count">0</span>
+            </div>
         </div>
 
-        <div class="action-section">
-            <button onclick="watchAd()" id="ad-btn">Reklama ko'rish (+10 tanga)</button>
-        </div>
+        <main class="content">
+            <div class="card ad-card">
+                <div class="card-info">
+                    <h3>Bepul tangalar yig'ing</h3>
+                    <p>Reklamani oxirigacha ko'ring va hisobingizni to'ldiring</p>
+                </div>
+                <button onclick="showAd()" id="ad-btn" class="main-btn">
+                    <span class="icon">🎬</span> Reklama ko'rish (+10)
+                </button>
+            </div>
 
-        <hr>
-
-        <div class="order-section">
-            <h3>Obunachi sotib olish</h3>
-            <input type="text" id="insta-username" placeholder="Instagram foydalanuvchi nomi">
-            <button onclick="placeOrder()">100 tangaga 10 ta obunachi</button>
-        </div>
-    </div>
-
-    <div class="admin-panel">
-        <h3>Admin Panel (Buyurtmalar)</h3>
-        <ul id="order-list"></ul>
+            <div class="card order-card">
+                <h3>Obunachi sotib olish</h3>
+                <p class="price-tag">100 tanga = 10 obunachi</p>
+                
+                <div class="input-wrapper">
+                    <span class="prefix">@</span>
+                    <input type="text" id="insta-username" placeholder="Instagram foydalanuvchi nomi">
+                </div>
+                
+                <button class="buy-btn" onclick="placeOrder()">
+                    Buyurtma berish
+                </button>
+            </div>
+        </main>
     </div>
 
     <script src="script.js"></script>
