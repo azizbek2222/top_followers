@@ -1,11 +1,11 @@
 const tg = window.Telegram.WebApp;
-const AdController = window.Adsgram.init({ blockId: "int-21300" }); 
+const AdController = typeof window.Adsgram !== 'undefined' ? window.Adsgram.init({ blockId: "int-21300" }) : null; 
 
 let coins = 0;
 tg.expand();
 tg.ready();
 
-// Balansni yuklash
+// Har bir sahifa yuklanganda balansni va refundni tekshirish
 document.addEventListener('DOMContentLoaded', () => {
     tg.CloudStorage.getItem('user_balance', (err, value) => {
         if (value) {
@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function showAd() {
+    if (!AdController) return;
     const btn = document.getElementById('ad-btn');
     btn.disabled = true;
     
@@ -34,12 +35,16 @@ async function showAd() {
 }
 
 function saveBalance() {
-    document.getElementById('coin-count').innerText = coins;
+    const coinEl = document.getElementById('coin-count');
+    if (coinEl) coinEl.innerText = coins;
     tg.CloudStorage.setItem('user_balance', coins.toString());
 }
 
 function placeOrder() {
-    const username = document.getElementById('insta-username').value;
+    const usernameInput = document.getElementById('insta-username');
+    if (!usernameInput) return;
+    
+    const username = usernameInput.value;
     if (!username) return alert("Instagram foydalanuvchi nomini yozing!");
 
     if (coins >= 100) {
@@ -52,6 +57,7 @@ function placeOrder() {
             time: new Date().toLocaleTimeString()
         };
 
+        // Buyurtmalarni saqlash
         tg.CloudStorage.getItem('all_orders', (err, value) => {
             let orders = value ? JSON.parse(value) : [];
             orders.push(order);
@@ -60,7 +66,8 @@ function placeOrder() {
 
         tg.HapticFeedback.notificationOccurred('success');
         alert("Buyurtma qabul qilindi!");
-        document.getElementById('insta-username').value = "";
+        usernameInput.value = "";
+        window.location.href = 'index.html'; // Buyurtmadan so'ng bosh sahifaga qaytish
     } else {
         alert("Tangalar yetarli emas!");
     }
